@@ -361,7 +361,7 @@
   <audio id="bgMusic" src="assets/humoresque_no7.mp3" preload="auto" loop></audio>
 
   <div id="splash" class="splash" aria-label="Düğün davetiyesi giriş videosu">
-    <video id="introVideo" src="assets/intro_1.mp4" autoplay muted playsinline preload="auto"></video>
+    <video id="introVideo" src="assets/intro_full.mp4" poster="assets/intro_poster.jpg" autoplay muted playsinline preload="auto"></video>
   </div>
 
   <main aria-label="Mihriban ve Serhat düğün davetiyesi">
@@ -441,7 +441,7 @@
       <img src="assets/5.png" alt="Düğün menüsü" loading="lazy" />
     </section>
 
-    <section class="panel" aria-label="Davetiyenin ek sayfası">
+    <section class="panel" aria-label="Ek davetiye sayfası">
       <img src="assets/6.png" alt="Mihriban ve Serhat düğün davetiyesi ek sayfası" loading="lazy" />
     </section>
   </main>
@@ -452,15 +452,11 @@
     const video = document.getElementById('introVideo');
     const bgMusic = document.getElementById('bgMusic');
 
-    const introSources = {
-      1: 'assets/intro_1.mp4',
-      2: 'assets/intro_2.mp4',
-      3: 'assets/intro_3.mp4'
-    };
+    const INTRO_1_PAUSE_AT_SECONDS = 2.55;
 
-    let introStep = 1;
     let splashClosed = false;
     let waitingForTap = false;
+    let intro1PausedOnce = false;
 
     bgMusic.volume = 0.45;
 
@@ -480,15 +476,6 @@
       }
     }
 
-    async function playIntro(step) {
-      introStep = step;
-      waitingForTap = false;
-      video.src = introSources[step];
-      video.currentTime = 0;
-      video.load();
-      await playCurrentVideo();
-    }
-
     function closeSplash() {
       if (splashClosed) return;
       splashClosed = true;
@@ -502,8 +489,9 @@
       if (splashClosed) return;
       startMusic();
 
-      if (waitingForTap && introStep === 1) {
-        playIntro(2);
+      if (waitingForTap) {
+        waitingForTap = false;
+        playCurrentVideo();
         return;
       }
 
@@ -517,21 +505,15 @@
     document.addEventListener('pointerdown', startMusic, { once: true });
     document.addEventListener('touchstart', startMusic, { once: true, passive: true });
 
-    video.addEventListener('ended', () => {
-      if (introStep === 1) {
+    video.addEventListener('timeupdate', () => {
+      if (!intro1PausedOnce && video.currentTime >= INTRO_1_PAUSE_AT_SECONDS) {
+        intro1PausedOnce = true;
         waitingForTap = true;
-        return;
-      }
-
-      if (introStep === 2) {
-        playIntro(3);
-        return;
-      }
-
-      if (introStep === 3) {
-        closeSplash();
+        video.pause();
       }
     });
+
+    video.addEventListener('ended', closeSplash);
 
     startMusic();
     playCurrentVideo();

@@ -1,10 +1,9 @@
-Mihriban & Serhat düğün davetiyesi
+Mihriban & Serhat davetiye sitesi
 
-Açılış akışı:
-1) intro_1.mp4 link açılınca başlar.
-2) Ekrana dokunulunca intro_2.mp4 başlar. Dokunulmazsa intro_1 sonunda bekler.
-3) intro_2 bitince intro_3.mp4 başlar.
-4) intro_3 bitince davetiye görselleri gösterilir.
+Video akisi tek dosyaya alindi: assets/intro_full.mp4
+- intro_1 kismi link acilinca baslar.
+- 2.55 saniyede durur ve kullanici dokunana kadar bekler.
+- Dokununca ayni video devam eder; intro_2 ve intro_3 tek dosyada oldugu icin videolar arasi siyah ekran azalir.
+- Video bitince davetiye gorselleri acilir.
 
-Müzik: humoresque_no7.mp3
-Not: Bazı mobil tarayıcılar sesli müziği kullanıcı dokunmadan başlatmayabilir; bu durumda müzik ilk dokunuşta başlar.
+LCV kayitlari Apps Script URL uzerinden Google Sheets'e gider.
