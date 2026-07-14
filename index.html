@@ -1,0 +1,650 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Mihriban & Serhat - Düğün Davetiyesi</title>
+  <meta name="description" content="Mihriban & Serhat düğün davetiyesi" />
+  <style>
+    :root {
+      --paper: #f5f0e4;
+      --gold: #8f861a;
+      --dark: #242017;
+      --soft: rgba(245, 240, 228, 0.94);
+      --shadow: 0 14px 30px rgba(35, 31, 20, 0.16);
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--dark);
+      font-family: Georgia, "Times New Roman", serif;
+    }
+
+    body.splash-active { overflow: hidden; }
+
+    .splash {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      display: grid;
+      place-items: center;
+      background: #111;
+      transition: opacity 0.7s ease, visibility 0.7s ease;
+    }
+
+    .splash.is-hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .splash video {
+      width: min(100vw, 720px);
+      height: 100vh;
+      max-height: 100vh;
+      object-fit: cover;
+      background: #111;
+    }
+
+
+    .skip-video {
+      position: fixed;
+      right: max(16px, env(safe-area-inset-right));
+      bottom: max(18px, env(safe-area-inset-bottom));
+      z-index: 60;
+      border: 1px solid rgba(255, 255, 255, 0.75);
+      border-radius: 999px;
+      padding: 10px 16px;
+      background: rgba(0, 0, 0, 0.38);
+      color: #fff;
+      font: 600 14px/1.2 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+    }
+
+    main {
+      width: min(100%, 720px);
+      margin: 0 auto;
+      background: var(--paper);
+      box-shadow: 0 0 45px rgba(48, 40, 22, 0.12);
+    }
+
+    .panel {
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+      line-height: 0;
+    }
+
+    .panel img {
+      display: block;
+      width: 100%;
+      height: auto;
+      user-select: none;
+    }
+
+    .action-button {
+      position: absolute;
+      z-index: 4;
+      left: 50%;
+      transform: translateX(-50%);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 32%;
+      min-height: 3.2%;
+      padding: clamp(7px, 1.3vw, 12px) clamp(16px, 3vw, 24px);
+      border: 1px solid rgba(143, 134, 26, 0.78);
+      border-radius: 999px;
+      background: rgba(245, 240, 228, 0.9);
+      color: var(--dark);
+      font: 600 clamp(11px, 2.4vw, 17px)/1.1 Georgia, "Times New Roman", serif;
+      letter-spacing: 0.05em;
+      text-decoration: none;
+      box-shadow: 0 8px 20px rgba(35, 31, 20, 0.11);
+      backdrop-filter: blur(5px);
+      -webkit-tap-highlight-color: transparent;
+      transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+      line-height: 1.1;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .action-button:hover,
+    .action-button:focus-visible {
+      transform: translateX(-50%) translateY(-2px);
+      background: rgba(255, 251, 239, 0.97);
+      box-shadow: 0 14px 30px rgba(35, 31, 20, 0.18);
+      outline: none;
+    }
+
+    .directions-button {
+      top: 86%;
+      min-width: 28%;
+      padding: clamp(6px, 1.2vw, 10px) clamp(15px, 2.7vw, 22px);
+      font-size: clamp(10px, 2.15vw, 15px);
+      letter-spacing: 0.04em;
+    }
+
+    .rsvp-form-card {
+      position: absolute;
+      z-index: 5;
+      top: 40%;
+      left: 5%;
+      right: 5%;
+      min-height: 0;
+      padding: clamp(5px, 1vw, 8px);
+      border: 1px solid rgba(143, 134, 26, 0.34);
+      border-radius: 12px;
+      background: rgba(245, 240, 228, 0.82);
+      box-shadow: 0 8px 18px rgba(35, 31, 20, 0.11);
+      backdrop-filter: blur(3px);
+      line-height: 1.05;
+    }
+
+    .rsvp-form-title {
+      margin: 0 0 clamp(3px, 0.55vw, 5px);
+      color: var(--gold);
+      text-align: center;
+      font: 700 clamp(10px, 2vw, 15px)/1 Georgia, "Times New Roman", serif;
+      letter-spacing: 0.05em;
+    }
+
+    .rsvp-form {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(2px, 0.5vw, 4px) clamp(3px, 0.7vw, 5px);
+    }
+
+    .form-field {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      min-width: 0;
+      line-height: 1;
+    }
+
+    .form-field.full { grid-column: 1 / -1; }
+
+    .form-field label {
+      color: var(--dark);
+      font: 600 clamp(6px, 1.15vw, 8.5px)/1.05 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      letter-spacing: 0.01em;
+    }
+
+    .required-mark { color: #8f5a1a; }
+
+    .form-field input,
+    .form-field select,
+    .form-field textarea {
+      width: 100%;
+      border: 1px solid rgba(143, 134, 26, 0.38);
+      border-radius: 7px;
+      background: rgba(255, 252, 244, 0.84);
+      color: var(--dark);
+      font: 500 clamp(7.5px, 1.35vw, 10px)/1.05 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      outline: none;
+      box-shadow: inset 0 1px 2px rgba(35, 31, 20, 0.04);
+    }
+
+    .form-field input,
+    .form-field select {
+      min-height: clamp(18px, 3.3vw, 24px);
+      padding: 3px 6px;
+    }
+
+    .form-field textarea {
+      min-height: clamp(24px, 4.6vw, 36px);
+      resize: vertical;
+      padding: 4px 6px;
+    }
+
+    .form-field input:focus,
+    .form-field select:focus,
+    .form-field textarea:focus {
+      border-color: rgba(143, 134, 26, 0.82);
+      background: rgba(255, 253, 247, 0.96);
+    }
+
+    .rsvp-submit {
+      grid-column: 1 / -1;
+      justify-self: center;
+      min-width: 24%;
+      border: 1px solid rgba(143, 134, 26, 0.72);
+      border-radius: 999px;
+      padding: clamp(3px, 0.7vw, 5px) clamp(10px, 2vw, 15px);
+      background: rgba(143, 134, 26, 0.88);
+      color: #fffaf0;
+      font: 700 clamp(8px, 1.45vw, 10.5px)/1 Georgia, "Times New Roman", serif;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      box-shadow: 0 5px 12px rgba(35, 31, 20, 0.11);
+    }
+
+    .rsvp-submit:disabled {
+      opacity: 0.65;
+      cursor: default;
+    }
+
+    .rsvp-submit-row {
+      grid-column: 1 / -1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: clamp(34px, 5vw, 46px);
+      padding-top: clamp(3px, 0.7vw, 6px);
+    }
+
+    .rsvp-submit {
+      margin: 0;
+    }
+
+    .rsvp-status {
+      grid-column: 1 / -1;
+      min-height: 1.15em;
+      margin: 0;
+      color: var(--dark);
+      text-align: center;
+      font: 600 clamp(8px, 1.5vw, 10px)/1.15 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .countdown {
+      position: absolute;
+      z-index: 4;
+      top: 85.5%;
+      left: 9%;
+      right: 9%;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: clamp(4px, 1vw, 10px);
+      line-height: 1;
+      text-align: center;
+    }
+
+    .countdown-box {
+      border: 1px solid rgba(143, 134, 26, 0.35);
+      border-radius: 12px;
+      padding: clamp(7px, 1.5vw, 12px) clamp(4px, 0.8vw, 8px);
+      background: rgba(245, 240, 228, 0.76);
+      box-shadow: 0 6px 18px rgba(35, 31, 20, 0.07);
+      backdrop-filter: blur(3px);
+    }
+
+    .countdown-value {
+      display: block;
+      color: var(--gold);
+      font: 700 clamp(18px, 6vw, 42px)/0.95 Georgia, "Times New Roman", serif;
+      letter-spacing: 0.01em;
+    }
+
+    .countdown-label {
+      display: block;
+      margin-top: clamp(4px, 1vw, 8px);
+      color: var(--dark);
+      font: 600 clamp(7px, 1.8vw, 12px)/1.15 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      letter-spacing: 0.12em;
+    }
+
+    .countdown-finished {
+      grid-column: 1 / -1;
+      padding: 16px 18px;
+      border-radius: 999px;
+      background: rgba(245, 240, 228, 0.84);
+      color: var(--gold);
+      font: 700 clamp(20px, 5vw, 38px)/1.2 Georgia, "Times New Roman", serif;
+      border: 1px solid rgba(143, 134, 26, 0.38);
+    }
+
+    @media (max-width: 480px) {
+      .rsvp-form-card {
+        top: 40%;
+        left: 5%;
+        right: 5%;
+        min-height: 0;
+        padding: 5px;
+        border-radius: 5px;
+      }
+
+      .rsvp-form {
+        gap: 2px 4px;
+      }
+
+      .rsvp-form-title { font-size: 10px; margin-bottom: 3px; }
+      .form-field label { font-size: 6.5px; }
+
+      .form-field input,
+      .form-field select {
+        min-height: 18px;
+        padding: 2px 5px;
+        font-size: 8px;
+      }
+
+      .form-field textarea {
+        min-height: 22px;
+        padding: 3px 5px;
+        font-size: 8px;
+      }
+
+      .rsvp-submit {
+        min-width: 26%;
+        padding: 3px 12px;
+        font-size: 8px;
+      }
+
+      .rsvp-status { font-size: 6.5px; }
+
+      .countdown {
+        top: 85.5%;
+        left: 4.5%;
+        right: 4.5%;
+        gap: 4px;
+      }
+
+      .countdown-label { letter-spacing: 0.08em; }
+    }
+
+    @media (max-width: 360px) {
+      .rsvp-form-card { top: 40%; left: 5%; right: 5%; }
+      .rsvp-form-title { margin-bottom: 2px; }
+      .form-field textarea { min-height: 20px; }
+      .rsvp-status { font-size: 6px; }
+    }
+  </style>
+</head>
+<body class="splash-active">
+  <audio id="bgMusic" src="assets/humoresque_no7.mp3" preload="auto" loop></audio>
+
+  <div id="splash" class="splash" aria-label="Düğün davetiyesi giriş videosu">
+    <video id="introVideo" src="assets/intro_1.mp4" autoplay muted playsinline preload="auto"></video>
+  </div>
+
+  <main aria-label="Mihriban ve Serhat düğün davetiyesi">
+    <section class="panel" aria-label="Davetiyenin kapak sayfası">
+      <img src="assets/1.png" alt="Mihriban ve Serhat düğün davetiyesi kapak görseli" />
+    </section>
+
+    <section class="panel" aria-label="Davet metni">
+      <img src="assets/2.png" alt="Davet metni" loading="lazy" />
+    </section>
+
+    <section class="panel" aria-label="Düğün programı ve davet yeri">
+      <img src="assets/3.png" alt="Düğün programı ve davet yeri" loading="lazy" />
+      <a class="action-button directions-button"
+         href="https://www.google.com/maps/dir/?api=1&destination=41.170622,28.991577"
+         target="_blank"
+         rel="noopener noreferrer"
+         aria-label="Qubbe Bahçe için yol tarifi al">YOL TARİFİ AL</a>
+    </section>
+
+    <section class="panel" aria-label="Katılım bildirimi ve geri sayım">
+      <img src="assets/4.png" alt="Katılım bildirimi ve düğüne kalan süre" loading="lazy" />
+
+      <div class="rsvp-form-card" aria-label="LCV formu">
+        <form id="rsvpForm" class="rsvp-form" autocomplete="on">
+          <div class="form-field full">
+            <label for="guestName">Ad Soyad</label>
+            <input id="guestName" name="guestName" type="text" placeholder="Adınız Soyadınız" required />
+          </div>
+
+          <div class="form-field">
+            <label for="attendanceStatus">Katılım durumu</label>
+            <select id="attendanceStatus" name="attendanceStatus" required>
+              <option value="" selected disabled>Seçiniz</option>
+              <option value="Katılacağım">Katılacağım</option>
+              <option value="Katılamayacağım">Katılamayacağım</option>
+              <option value="Henüz net değil">Henüz net değil</option>
+            </select>
+          </div>
+
+          <div class="form-field">
+            <label for="guestCount">Kişi sayısı</label>
+            <select id="guestCount" name="guestCount" required>
+              <option value="" selected disabled>Seçiniz</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+            </select>
+          </div>
+
+          <div class="form-field full">
+            <label for="phone">Telefon <span class="required-mark">*</span></label>
+            <input id="phone" name="phone" type="tel" inputmode="numeric" pattern="[0-9 ]*" placeholder="Telefon numaranız" required />
+          </div>
+
+          <div class="form-field full">
+            <label for="message">Notunuz / iyi dilek mesajınız</label>
+            <textarea id="message" name="message" placeholder="Mesajınız"></textarea>
+          </div>
+
+          <div class="rsvp-submit-row">
+            <button id="rsvpSubmit" class="rsvp-submit" type="submit">GÖNDER</button>
+          </div>
+          <p id="rsvpStatus" class="rsvp-status" aria-live="polite"></p>
+        </form>
+      </div>
+
+      <div id="countdown" class="countdown" aria-live="polite" aria-label="29 Ağustos 2026 saat 14.00 düğüne kalan süre">
+        <div class="countdown-box"><span id="days" class="countdown-value">--</span><span class="countdown-label">GÜN</span></div>
+        <div class="countdown-box"><span id="hours" class="countdown-value">--</span><span class="countdown-label">SAAT</span></div>
+        <div class="countdown-box"><span id="minutes" class="countdown-value">--</span><span class="countdown-label">DAKİKA</span></div>
+        <div class="countdown-box"><span id="seconds" class="countdown-value">--</span><span class="countdown-label">SANİYE</span></div>
+      </div>
+    </section>
+
+    <section class="panel" aria-label="Düğün menüsü">
+      <img src="assets/5.png" alt="Düğün menüsü" loading="lazy" />
+    </section>
+
+    <section class="panel" aria-label="Davetiyenin ek sayfası">
+      <img src="assets/6.png" alt="Mihriban ve Serhat düğün davetiyesi ek sayfası" loading="lazy" />
+    </section>
+  </main>
+
+  <script>
+    const body = document.body;
+    const splash = document.getElementById('splash');
+    const video = document.getElementById('introVideo');
+    const bgMusic = document.getElementById('bgMusic');
+
+    const introSources = {
+      1: 'assets/intro_1.mp4',
+      2: 'assets/intro_2.mp4',
+      3: 'assets/intro_3.mp4'
+    };
+
+    let introStep = 1;
+    let splashClosed = false;
+    let waitingForTap = false;
+
+    bgMusic.volume = 0.45;
+
+    async function startMusic() {
+      try {
+        await bgMusic.play();
+      } catch (error) {
+        // Tarayıcı otomatik sesi engellerse müzik ilk dokunmada başlar.
+      }
+    }
+
+    async function playCurrentVideo() {
+      try {
+        await video.play();
+      } catch (error) {
+        // Tarayıcı oynatmayı engellerse kullanıcı herhangi bir yere dokunduğunda tekrar denenir.
+      }
+    }
+
+    async function playIntro(step) {
+      introStep = step;
+      waitingForTap = false;
+      video.src = introSources[step];
+      video.currentTime = 0;
+      video.load();
+      await playCurrentVideo();
+    }
+
+    function closeSplash() {
+      if (splashClosed) return;
+      splashClosed = true;
+      splash.classList.add('is-hidden');
+      body.classList.remove('splash-active');
+      try { video.pause(); } catch (error) {}
+      window.setTimeout(() => splash.remove(), 800);
+    }
+
+    function handleSplashInteraction() {
+      if (splashClosed) return;
+      startMusic();
+
+      if (waitingForTap && introStep === 1) {
+        playIntro(2);
+        return;
+      }
+
+      if (video.paused) {
+        playCurrentVideo();
+      }
+    }
+
+    splash.addEventListener('pointerdown', handleSplashInteraction);
+    splash.addEventListener('touchstart', handleSplashInteraction, { passive: true });
+    document.addEventListener('pointerdown', startMusic, { once: true });
+    document.addEventListener('touchstart', startMusic, { once: true, passive: true });
+
+    video.addEventListener('ended', () => {
+      if (introStep === 1) {
+        waitingForTap = true;
+        return;
+      }
+
+      if (introStep === 2) {
+        playIntro(3);
+        return;
+      }
+
+      if (introStep === 3) {
+        closeSplash();
+      }
+    });
+
+    startMusic();
+    playCurrentVideo();
+
+    const targetDate = new Date('2026-08-29T14:00:00+03:00').getTime();
+    const countdown = document.getElementById('countdown');
+    const daysEl = document.getElementById('days');
+    const hoursEl = document.getElementById('hours');
+    const minutesEl = document.getElementById('minutes');
+    const secondsEl = document.getElementById('seconds');
+
+    function pad(number) {
+      return String(number).padStart(2, '0');
+    }
+
+    function updateCountdown() {
+      const now = Date.now();
+      const difference = targetDate - now;
+
+      if (difference <= 0) {
+        countdown.innerHTML = '<div class="countdown-finished">Mutluluğumuz başladı</div>';
+        return;
+      }
+
+      const totalSeconds = Math.floor(difference / 1000);
+      const days = Math.floor(totalSeconds / 86400);
+      const hours = Math.floor((totalSeconds % 86400) / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+
+      daysEl.textContent = days;
+      hoursEl.textContent = pad(hours);
+      minutesEl.textContent = pad(minutes);
+      secondsEl.textContent = pad(seconds);
+    }
+
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+
+    const rsvpForm = document.getElementById('rsvpForm');
+    const rsvpSubmit = document.getElementById('rsvpSubmit');
+    const rsvpStatus = document.getElementById('rsvpStatus');
+    const RSVP_STORAGE_KEY = 'mihriban_serhat_lcv_kayitlari';
+
+    // Google Sheets / Apps Script arka plan kaydı için Web App URL buraya eklenecek.
+    // Örnek: const SHEETS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxxxxxxxxxxxxxxxx/exec';
+    const SHEETS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbw-wKCdov9DawGls3jX3SDc1z72oRHGShToAO7u6_CT01VRcfKBm_L0P2hCl0duvs4i9Q/exec';
+
+    function getSavedRsvps() {
+      try {
+        return JSON.parse(localStorage.getItem(RSVP_STORAGE_KEY) || '[]');
+      } catch (error) {
+        return [];
+      }
+    }
+
+    function saveRsvpLocally(payload) {
+      const records = getSavedRsvps();
+      records.push(payload);
+      localStorage.setItem(RSVP_STORAGE_KEY, JSON.stringify(records));
+    }
+
+    function isGoogleSheetsConfigured() {
+      return Boolean(SHEETS_WEB_APP_URL && SHEETS_WEB_APP_URL.includes('/exec'));
+    }
+
+    async function sendRsvpToGoogleSheets(payload) {
+      if (!isGoogleSheetsConfigured()) return false;
+
+      await fetch(SHEETS_WEB_APP_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      });
+
+      return true;
+    }
+
+    rsvpForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      startMusic();
+
+      if (!rsvpForm.checkValidity()) {
+        rsvpForm.reportValidity();
+        return;
+      }
+
+      const payload = {
+        kayitZamani: new Date().toISOString(),
+        adSoyad: document.getElementById('guestName').value.trim(),
+        katilimDurumu: document.getElementById('attendanceStatus').value,
+        kisiSayisi: document.getElementById('guestCount').value,
+        telefon: document.getElementById('phone').value.trim(),
+        notunuz: document.getElementById('message').value.trim()
+      };
+
+      rsvpSubmit.disabled = true;
+      rsvpStatus.textContent = 'Kaydınız alınıyor...';
+
+      try {
+        saveRsvpLocally(payload);
+        const sentToGoogleSheets = await sendRsvpToGoogleSheets(payload);
+        rsvpForm.reset();
+        rsvpStatus.textContent = sentToGoogleSheets
+          ? 'LCV kaydınız alındı. Teşekkür ederiz.'
+          : 'LCV kaydınız bu cihazda saklandı. Google Sheets bağlantısı için Apps Script URL ayarı gerekiyor.';
+      } catch (error) {
+        rsvpStatus.textContent = 'Kayıt sırasında sorun oluştu. Lütfen tekrar deneyin.';
+      } finally {
+        rsvpSubmit.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
